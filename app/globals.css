@@ -10,6 +10,24 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Bank of Kigali Brand Colors */
+  --color-primary-50: #eef6ff;
+  --color-primary-100: #d9eaff;
+  --color-primary-200: #bcdbff;
+  --color-primary-300: #8ec4ff;
+  --color-primary-400: #59a2ff;
+  --color-primary-500: #2e7aff;
+  --color-primary-600: #034EA2;
+  /* Official BK Blue */
+  --color-primary-700: #023e8a;
+  --color-primary-800: #023370;
+  --color-primary-900: #062b5b;
+  --color-primary-950: #041b3d;
+
+  /* Custom Surface Colors */
+  --color-surface-light: #fdfefe;
+  /* User requested off-white */
 }
 
 @media (prefers-color-scheme: dark) {
