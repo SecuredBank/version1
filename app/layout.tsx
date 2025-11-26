@@ -13,8 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fraud Detection Dashboard",
-  description: "Real-time fraud detection and prevention dashboard",
+  title: "SecuredBank - Fraud Detection Dashboard",
+  description: "Real-time fraud detection and prevention dashboard for secure banking transactions",
+  icons: {
+    icon: '/bank-icon.svg',
+  },
 };
 
 export default function RootLayout({
