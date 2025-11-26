@@ -424,4 +424,4 @@ export const settingsService = {
 export const monitoringService = {
   getSystemStatus: () => apiClient.getSystemMonitoring(),
   getRiskAssessment: () => apiClient.getRiskAssessment(),
-};
+}; 
