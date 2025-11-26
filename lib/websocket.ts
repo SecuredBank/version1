@@ -201,4 +201,4 @@ export const subscribeToRiskUpdates = (
   callback: (risk: { riskLevel: number; riskCategory: string }) => void
 ) => {
   return wsManager.on('risk_update', callback);
-}; 
+};
