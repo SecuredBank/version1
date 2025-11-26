@@ -69,4 +69,4 @@ export default function RiskAssessment() {
       </div>
     </div>
   );
-} 
+}
