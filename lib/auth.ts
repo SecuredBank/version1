@@ -156,4 +156,4 @@ export const register = (userData: RegisterRequest) => authManager.register(user
 export const logout = () => authManager.logout();
 export const isAuthenticated = () => authManager.isAuthenticated();
 export const getCurrentUser = () => authManager.getCurrentUser();
-export const getAuthToken = () => authManager.getToken(); 
+export const getAuthToken = () => authManager.getToken();
