@@ -362,4 +362,4 @@ The transition from mock to real API should be seamless:
 3. Type safety is maintained throughout
 4. Error handling is centralized
 
-Simply update the service methods in `lib/api.ts` and the frontend will automatically use the real backend!
+Simply update the service methods in `lib/api.ts` and the frontend will automatically use the real backend! 
