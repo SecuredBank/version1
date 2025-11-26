@@ -48,4 +48,4 @@ export default function LocationActivity() {
       </div>
     </div>
   );
-}
+} 
