@@ -112,4 +112,4 @@ export default function NotificationPopup({ isOpen, onClose }: NotificationPopup
         </div>
       </div>
   );
-}
+} 
