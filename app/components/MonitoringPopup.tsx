@@ -99,4 +99,4 @@ export default function MonitoringPopup({ isOpen, onClose }: MonitoringPopupProp
         </div>
       </div>
   );
-} 
+}
