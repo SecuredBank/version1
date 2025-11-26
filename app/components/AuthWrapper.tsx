@@ -39,4 +39,4 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   }
 
   return <>{children}</>;
-} 
+}
