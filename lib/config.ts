@@ -107,4 +107,4 @@ export const SUCCESS_MESSAGES = {
   SETTINGS_UPDATED: 'Settings updated successfully',
   REPORT_GENERATED: 'Report generated successfully',
   ALERT_DISMISSED: 'Alert dismissed successfully',
-}; 
+};
