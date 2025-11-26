@@ -160,4 +160,4 @@ export interface AlertFilters {
   status?: SecurityAlert['status'];
   dateFrom?: string;
   dateTo?: string;
-}
+} 
