@@ -162,4 +162,4 @@ export default function TransactionDetailsPopup({ isOpen, onClose, transaction }
         </div>
       </div>
   );
-}
+} 
