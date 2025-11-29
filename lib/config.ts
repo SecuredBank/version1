@@ -28,10 +28,17 @@ export const API_ENDPOINTS = {
 
   // Transactions (Main Backend)
   TRANSACTIONS: {
-    LIST: '/transactions',
+    LIST: '/transactions/history',
     DETAILS: '/transactions/:id',
     REAL_TIME: '/transactions/real-time',
     EXPORT: '/transactions/export',
+  },
+
+  // Accounts (Main Backend)
+  ACCOUNTS: {
+    LIST: '/accounts',
+    STATISTICS: '/accounts/statistics',
+    DETAILS: '/accounts/:id',
   },
 
   // Fraud Detection (AI Service)

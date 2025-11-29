@@ -2,11 +2,33 @@
 
 import { ArrowUpRight, AlertTriangle, Shield, TrendingUp } from 'lucide-react';
 
-export default function StatsCards() {
-  const stats = [
+interface StatsCardsProps {
+  stats?: {
+    totalTransactions: number;
+    fraudDetected: number;
+    preventedLosses: number;
+    detectionRate: number;
+  };
+  loading?: boolean;
+}
+
+export default function StatsCards({ stats, loading }: StatsCardsProps) {
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat('en-US').format(num);
+  };
+
+  const formatCurrency = (num: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+    }).format(num);
+  };
+
+  const statsData = [
     {
       title: 'Total Transactions',
-      value: '2,847,592',
+      value: loading ? '...' : formatNumber(stats?.totalTransactions || 0),
       icon: ArrowUpRight,
       iconColor: 'text-gray-800',
       bgColor: 'bg-gray-80',
@@ -14,7 +36,7 @@ export default function StatsCards() {
     },
     {
       title: 'Fraud Detected',
-      value: '1,247',
+      value: loading ? '...' : formatNumber(stats?.fraudDetected || 0),
       icon: AlertTriangle,
       iconColor: 'text-red-500',
       bgColor: 'bg-red-50',
@@ -22,7 +44,7 @@ export default function StatsCards() {
     },
     {
       title: 'Prevented Losses',
-      value: '$2,847,592',
+      value: loading ? '...' : formatCurrency(stats?.preventedLosses || 0),
       icon: Shield,
       iconColor: 'text-[#20582C]',
       bgColor: 'bg-green-50',
@@ -30,7 +52,7 @@ export default function StatsCards() {
     },
     {
       title: 'Detection Rate',
-      value: '99.7%',
+      value: loading ? '...' : `${(stats?.detectionRate || 0).toFixed(1)}%`,
       icon: TrendingUp,
       iconColor: 'text-yellow-500',
       bgColor: 'bg-yellow-50',
@@ -40,7 +62,7 @@ export default function StatsCards() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {stats.map((stat, index) => {
+      {statsData.map((stat, index) => {
         const Icon = stat.icon;
 
         return (

@@ -5,47 +5,61 @@ import { Activity } from 'lucide-react';
 import TransactionDetailsPopup from './TransactionDetailsPopup';
 
 interface Transaction {
-  name: string;
-  amount: string;
-  location: string;
-  app: string;
+  _id?: string;
+  name?: string;
+  amount: number | string;
+  location?: string;
+  app?: string;
   type: string;
   status: string;
-  time: string;
+  time?: string;
+  createdAt?: string;
+  sender?: any;
+  receiver?: any;
+  description?: string;
 }
 
-export default function TransactionFeed() {
+interface TransactionFeedProps {
+  transactions?: any[];
+  loading?: boolean;
+}
+
+export default function TransactionFeed({ transactions: propTransactions, loading }: TransactionFeedProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
-  const transactions = [
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via Mobile App',
-      type: 'Transfer',
-      status: 'pending',
-      time: '2m',
-    },
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via Web App',
-      type: 'Withdrawal',
-      status: 'completed',
-      time: '5m',
-    },
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via Web App',
-      type: 'Transfer',
-      status: 'flagged',
-      time: '8m',
-    },
-  ];
+
+  const formatTimeAgo = (date: string) => {
+    const now = new Date();
+    const txDate = new Date(date);
+    const diffMs = now.getTime() - txDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'now';
+    if (diffMins < 60) return `${diffMins}m`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h`;
+    return `${Math.floor(diffHours / 24)}d`;
+  };
+
+  const formatTransaction = (tx: any): Transaction => {
+    const senderName = tx.sender?.firstName 
+      ? `${tx.sender.firstName} ${tx.sender.lastName}` 
+      : 'Unknown';
+    
+    return {
+      _id: tx._id,
+      name: senderName,
+      amount: typeof tx.amount === 'number' ? `$${tx.amount.toLocaleString()}` : tx.amount,
+      location: tx.location || 'Unknown',
+      app: tx.channel || 'via Web App',
+      type: tx.type || 'Transfer',
+      status: tx.status?.toLowerCase() || 'pending',
+      time: tx.createdAt ? formatTimeAgo(tx.createdAt) : 'now',
+      ...tx,
+    };
+  };
+
+  const transactions = propTransactions?.map(formatTransaction) || [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -67,8 +81,13 @@ export default function TransactionFeed() {
         <h3 className="text-lg font-semibold text-gray-900">Real-Time Transaction Feed</h3>
       </div>
       
-      <div className="space-y-4">
-        {transactions.map((transaction, index) => (
+      {loading ? (
+        <div className="text-center py-8 text-gray-500">Loading transactions...</div>
+      ) : transactions.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">No transactions found</div>
+      ) : (
+        <div className="space-y-4">
+          {transactions.map((transaction, index) => (
           <div 
             key={index} 
             onClick={() => {
@@ -106,8 +125,9 @@ export default function TransactionFeed() {
               <span className="text-sm text-gray-500">{transaction.time}</span>
             </div>
           </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       
       <TransactionDetailsPopup 
         isOpen={showTransactionDetails}

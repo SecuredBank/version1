@@ -111,6 +111,15 @@ class ApiClient {
     return this.request<DashboardStats>(API_ENDPOINTS.DASHBOARD.STATS);
   }
 
+  // Account Methods (Main Backend)
+  async getAccountStatistics(): Promise<ApiResponse<any>> {
+    return this.request<any>(API_ENDPOINTS.ACCOUNTS.STATISTICS);
+  }
+
+  async getUserAccounts(): Promise<ApiResponse<any>> {
+    return this.request<any>(API_ENDPOINTS.ACCOUNTS.LIST);
+  }
+
   // Transaction Methods (Main Backend)
   async getTransactions(
     filters?: TransactionFilters,
@@ -262,4 +271,9 @@ export const settingsService = {
 export const monitoringService = {
   getSystemStatus: () => apiClient.getSystemMonitoring(),
   getRiskAssessment: () => apiClient.getRiskAssessment(),
+};
+
+export const accountService = {
+  getStatistics: () => apiClient.getAccountStatistics(),
+  getAccounts: () => apiClient.getUserAccounts(),
 };

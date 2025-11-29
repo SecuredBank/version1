@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import TransactionDetailsPopup from '../TransactionDetailsPopup';
+import { transactionService } from '@/lib/api';
 
 interface Transaction {
+  _id?: string;
   name: string;
   amount: string;
   location: string;
@@ -13,103 +15,78 @@ interface Transaction {
   status: string;
   time: string;
   risk?: string | null;
+  fraudScore?: number;
 }
 
 export default function TransactionsPage() {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
-  const transactions = [
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via Mobile App',
-      type: 'Transfer',
-      status: 'Approved',
-      time: 'now',
-      risk: null,
-    },
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via Web App',
-      type: 'Transfer',
-      status: 'Suspicious',
-      time: '10 min ago',
-      risk: '89%',
-    },
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via ATM',
-      type: 'Payment',
-      status: 'Blocked',
-      time: '15 min ago',
-      risk: '93%',
-    },
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via Web App',
-      type: 'Withdrawal',
-      status: 'Suspicious',
-      time: '18 min ago',
-      risk: '73%',
-    },
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via Mobile App',
-      type: 'Transfer',
-      status: 'Approved',
-      time: 'now',
-      risk: null,
-    },
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via Web App',
-      type: 'Transfer',
-      status: 'Suspicious',
-      time: '18 min ago',
-      risk: '3%',
-    },
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via ATM',
-      type: 'Payment',
-      status: 'Blocked',
-      time: '19 min ago',
-      risk: '93%',
-    },
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via Web App',
-      type: 'Transfer',
-      status: 'Suspicious',
-      time: '19 min ago',
-      risk: '23%',
-    },
-    {
-      name: 'John Doe',
-      amount: '$25,000.0',
-      location: 'Kigali, Rwanda',
-      app: 'via Mobile App',
-      type: 'Transfer',
-      status: 'Approved',
-      time: 'now',
-      risk: null,
-    },
-  ];
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const response = await transactionService.getAll({}, 1, 50);
+      
+      if (response.success) {
+        const formattedTxs = response.data.map((tx: any) => {
+          const senderName = tx.sender?.firstName 
+            ? `${tx.sender.firstName} ${tx.sender.lastName}` 
+            : 'Unknown User';
+          
+          const formatTimeAgo = (date: string) => {
+            const now = new Date();
+            const txDate = new Date(date);
+            const diffMs = now.getTime() - txDate.getTime();
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return 'now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            return `${Math.floor(diffHours / 24)} day${Math.floor(diffHours / 24) > 1 ? 's' : ''} ago`;
+          };
+
+          const mapStatus = (status: string) => {
+            const statusMap: { [key: string]: string } = {
+              'COMPLETED': 'Approved',
+              'PENDING': 'Pending',
+              'BLOCKED': 'Blocked',
+              'REJECTED': 'Blocked',
+              'FLAGGED': 'Suspicious',
+            };
+            return statusMap[status] || 'Suspicious';
+          };
+
+          return {
+            _id: tx._id,
+            name: senderName,
+            amount: `$${tx.amount?.toLocaleString() || '0'}`,
+            location: tx.location || 'Unknown',
+            app: tx.channel || 'via Web App',
+            type: tx.type || 'Transfer',
+            status: mapStatus(tx.status),
+            time: tx.createdAt ? formatTimeAgo(tx.createdAt) : 'now',
+            risk: tx.fraudScore && tx.fraudScore > 50 ? `${tx.fraudScore}%` : null,
+            fraudScore: tx.fraudScore,
+          };
+        });
+        
+        setTransactions(formattedTxs);
+      }
+    } catch (err: any) {
+      console.error('Error fetching transactions:', err);
+      setError(err.message || 'Failed to fetch transactions');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -134,8 +111,17 @@ export default function TransactionsPage() {
       </div>
       
       <div className="p-6">
-        <div className="space-y-4">
-          {transactions.map((transaction, index) => (
+        {loading ? (
+          <div className="text-center py-8 text-gray-500">Loading transactions...</div>
+        ) : error ? (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-800">Error: {error}</p>
+          </div>
+        ) : transactions.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">No transactions found</div>
+        ) : (
+          <div className="space-y-4">
+            {transactions.map((transaction, index) => (
             <div 
               key={index} 
               onClick={() => {
@@ -178,8 +164,9 @@ export default function TransactionsPage() {
                 )}
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
       
       <TransactionDetailsPopup 
