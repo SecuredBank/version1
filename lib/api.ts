@@ -20,11 +20,13 @@ import type {
 
 // API Client Class
 class ApiClient {
-  private baseURL: string;
+  private mainBackendURL: string;
+  private aiServiceURL: string;
   private timeout: number;
 
   constructor() {
-    this.baseURL = API_CONFIG.BASE_URL;
+    this.mainBackendURL = API_CONFIG.MAIN_BACKEND_URL;
+    this.aiServiceURL = API_CONFIG.AI_SERVICE_URL;
     this.timeout = API_CONFIG.TIMEOUT;
   }
 
@@ -52,13 +54,15 @@ class ApiClient {
     return headers;
   }
 
-  // Generic request method
+  // Generic request method with service selection
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    useAIService = false
   ): Promise<ApiResponse<T>> {
     try {
-      const url = `${this.baseURL}${endpoint}`;
+      const baseURL = useAIService ? this.aiServiceURL : this.mainBackendURL;
+      const url = `${baseURL}${endpoint}`;
       const config: RequestInit = {
         ...options,
         headers: {
@@ -81,313 +85,137 @@ class ApiClient {
     }
   }
 
-  // Authentication Methods
+  // Authentication Methods (Main Backend)
   async login(credentials: LoginRequest): Promise<ApiResponse<AuthResponse>> {
-    // TODO: Replace with actual API call
-    // return this.request<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, {
-    //   method: 'POST',
-    //   body: JSON.stringify(credentials),
-    // });
-
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockResponse: ApiResponse<AuthResponse> = {
-          success: true,
-          data: {
-            user: {
-              id: '1',
-              email: credentials.email,
-              firstName: 'John',
-              lastName: 'Doe',
-              role: 'admin',
-              createdAt: new Date().toISOString(),
-            },
-            token: 'mock-jwt-token',
-            refreshToken: 'mock-refresh-token',
-          },
-        };
-        resolve(mockResponse);
-      }, 1000);
+    return this.request<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, {
+      method: 'POST',
+      body: JSON.stringify(credentials),
     });
   }
 
   async register(userData: RegisterRequest): Promise<ApiResponse<AuthResponse>> {
-    // TODO: Replace with actual API call
-    // return this.request<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, {
-    //   method: 'POST',
-    //   body: JSON.stringify(userData),
-    // });
-
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockResponse: ApiResponse<AuthResponse> = {
-          success: true,
-          data: {
-            user: {
-              id: '1',
-              email: userData.email,
-              firstName: userData.firstName,
-              lastName: userData.lastName,
-              role: 'user',
-              createdAt: new Date().toISOString(),
-            },
-            token: 'mock-jwt-token',
-            refreshToken: 'mock-refresh-token',
-          },
-        };
-        resolve(mockResponse);
-      }, 1000);
+    return this.request<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, {
+      method: 'POST',
+      body: JSON.stringify(userData),
     });
   }
 
   async logout(): Promise<ApiResponse<void>> {
-    // TODO: Replace with actual API call
-    // return this.request<void>(API_ENDPOINTS.AUTH.LOGOUT, {
-    //   method: 'POST',
-    // });
-
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ success: true, data: undefined });
-      }, 500);
+    return this.request<void>(API_ENDPOINTS.AUTH.LOGOUT, {
+      method: 'POST',
     });
   }
 
-  // Dashboard Methods
+  // Dashboard Methods (Main Backend)
   async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
-    // TODO: Replace with actual API call
-    // return this.request<DashboardStats>(API_ENDPOINTS.DASHBOARD.STATS);
-
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            totalTransactions: 2847592,
-            fraudDetected: 1247,
-            preventedLosses: '$2,847,592',
-            detectionRate: '99.7%',
-          },
-        });
-      }, 500);
-    });
+    return this.request<DashboardStats>(API_ENDPOINTS.DASHBOARD.STATS);
   }
 
-  // Transaction Methods
+  // Transaction Methods (Main Backend)
   async getTransactions(
     filters?: TransactionFilters,
     page = 1,
     limit = 20
   ): Promise<PaginatedResponse<Transaction>> {
-    // TODO: Replace with actual API call
-    // const params = new URLSearchParams({
-    //   page: page.toString(),
-    //   limit: limit.toString(),
-    //   ...filters,
-    // });
-    // return this.request<Transaction[]>(`${API_ENDPOINTS.TRANSACTIONS.LIST}?${params}`);
-
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockTransactions: Transaction[] = [
-          {
-            id: '1',
-            userId: 'user1',
-            userName: 'John Doe',
-            amount: '$25,000.0',
-            location: 'Kigali, Rwanda',
-            platform: 'mobile',
-            type: 'transfer',
-            status: 'approved',
-            timestamp: new Date().toISOString(),
-          },
-          // Add more mock transactions...
-        ];
-
-        resolve({
-          success: true,
-          data: mockTransactions,
-          pagination: {
-            page,
-            limit,
-            total: 100,
-            totalPages: 5,
-          },
-        });
-      }, 500);
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...(filters as any),
     });
+    return this.request<any>(`${API_ENDPOINTS.TRANSACTIONS.LIST}?${params}`) as unknown as Promise<
+      PaginatedResponse<Transaction>
+    >;
   }
 
   async getTransactionDetails(id: string): Promise<ApiResponse<Transaction>> {
-    // TODO: Replace with actual API call
-    // return this.request<Transaction>(API_ENDPOINTS.TRANSACTIONS.DETAILS.replace(':id', id));
-
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            id,
-            userId: 'user1',
-            userName: 'John Doe',
-            amount: '$25,000.0',
-            location: 'Kigali, Rwanda',
-            platform: 'mobile',
-            type: 'transfer',
-            status: 'approved',
-            timestamp: new Date().toISOString(),
-          },
-        });
-      }, 500);
-    });
+    return this.request<Transaction>(
+      API_ENDPOINTS.TRANSACTIONS.DETAILS.replace(':id', id)
+    );
   }
 
-  // Alert Methods
+  // Fraud Detection Methods (AI Service)
+  async analyzeFraud(transactionData: any): Promise<ApiResponse<any>> {
+    return this.request<any>(
+      API_ENDPOINTS.FRAUD.ANALYZE,
+      {
+        method: 'POST',
+        body: JSON.stringify(transactionData),
+      },
+      true // Use AI Service
+    );
+  }
+
+  async getUserRiskProfile(userId: string): Promise<ApiResponse<any>> {
+    return this.request<any>(
+      API_ENDPOINTS.FRAUD.RISK_PROFILE.replace(':userId', userId),
+      {},
+      true // Use AI Service
+    );
+  }
+
+  // Credit Scoring Methods (AI Service)
+  async calculateCreditScore(creditData: any): Promise<ApiResponse<any>> {
+    return this.request<any>(
+      API_ENDPOINTS.CREDIT.SCORE,
+      {
+        method: 'POST',
+        body: JSON.stringify(creditData),
+      },
+      true // Use AI Service
+    );
+  }
+
+  async assessLoanEligibility(creditData: any): Promise<ApiResponse<any>> {
+    return this.request<any>(
+      API_ENDPOINTS.CREDIT.ELIGIBILITY,
+      {
+        method: 'POST',
+        body: JSON.stringify(creditData),
+      },
+      true // Use AI Service
+    );
+  }
+
+  // Alert Methods (Main Backend)
   async getAlerts(
     filters?: AlertFilters,
     page = 1,
     limit = 20
   ): Promise<PaginatedResponse<SecurityAlert>> {
-    // TODO: Replace with actual API call
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockAlerts: SecurityAlert[] = [
-          {
-            id: '1',
-            title: 'Suspicious Login Pattern',
-            description: 'Multiple failed login attempts from new device',
-            severity: 'high',
-            status: 'investigating',
-            userId: 'user1',
-            accountNumber: 'JD-****1234',
-            timestamp: new Date().toISOString(),
-          },
-          // Add more mock alerts...
-        ];
-
-        resolve({
-          success: true,
-          data: mockAlerts,
-          pagination: {
-            page,
-            limit,
-            total: 50,
-            totalPages: 3,
-          },
-        });
-      }, 500);
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...(filters as any),
     });
+    return this.request<any>(`${API_ENDPOINTS.ALERTS.LIST}?${params}`) as unknown as Promise<
+      PaginatedResponse<SecurityAlert>
+    >;
   }
 
-  // Settings Methods
+  // Settings Methods (Main Backend)
   async getSecuritySettings(): Promise<ApiResponse<SecuritySettings>> {
-    // TODO: Replace with actual API call
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            twoFactorAuth: true,
-            securityAlerts: true,
-            realTimeMonitoring: true,
-            autoBlockSuspicious: false,
-          },
-        });
-      }, 500);
-    });
+    return this.request<SecuritySettings>(API_ENDPOINTS.SETTINGS.SECURITY);
   }
 
   async updateSecuritySettings(settings: SecuritySettings): Promise<ApiResponse<SecuritySettings>> {
-    // TODO: Replace with actual API call
-    // return this.request<SecuritySettings>(API_ENDPOINTS.SETTINGS.UPDATE_SECURITY, {
-    //   method: 'PUT',
-    //   body: JSON.stringify(settings),
-    // });
-
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: settings,
-        });
-      }, 500);
+    return this.request<SecuritySettings>(API_ENDPOINTS.SETTINGS.UPDATE_SECURITY, {
+      method: 'PUT',
+      body: JSON.stringify(settings),
     });
   }
 
-  // Monitoring Methods
+  // Monitoring Methods (Main Backend)
   async getSystemMonitoring(): Promise<ApiResponse<SystemMonitoring>> {
-    // TODO: Replace with actual API call
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            systemActive: true,
-            transactionsPerSecond: 254,
-            totalProcessed: 16283,
-            secureTransactions: 16283,
-            flaggedTransactions: 72,
-            successRate: 99.93,
-          },
-        });
-      }, 500);
-    });
+    return this.request<SystemMonitoring>(API_ENDPOINTS.MONITORING.SYSTEM_STATUS);
   }
 
   async getRiskAssessment(): Promise<ApiResponse<RiskAssessment>> {
-    // TODO: Replace with actual API call
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            overallRiskLevel: 82,
-            riskCategory: 'medium',
-            securityFeatures: {
-              authentication: { status: 'active', enabled: true },
-              behaviorAnalysis: { status: 'monitoring', enabled: true },
-              deviceFingerprinting: { status: 'enabled', enabled: true },
-            },
-          },
-        });
-      }, 500);
-    });
+    return this.request<RiskAssessment>(API_ENDPOINTS.MONITORING.RISK_ASSESSMENT);
   }
 
-  // Reports Methods
+  // Reports Methods (Main Backend)
   async getReports(): Promise<ApiResponse<Report[]>> {
-    // TODO: Replace with actual API call
-    // Mock implementation for now
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: [
-            {
-              id: '1',
-              name: 'Weekly Fraud Summary',
-              type: 'fraud-summary',
-              format: 'pdf',
-              size: '2.4 MB',
-              generatedAt: '2024-05-15',
-              downloadUrl: '/reports/1/download',
-            },
-            // Add more mock reports...
-          ],
-        });
-      }, 500);
-    });
+    return this.request<Report[]>(API_ENDPOINTS.REPORTS.LIST);
   }
 }
 
@@ -411,6 +239,16 @@ export const transactionService = {
   getById: (id: string) => apiClient.getTransactionDetails(id),
 };
 
+export const fraudService = {
+  analyze: (transactionData: any) => apiClient.analyzeFraud(transactionData),
+  getRiskProfile: (userId: string) => apiClient.getUserRiskProfile(userId),
+};
+
+export const creditService = {
+  calculateScore: (creditData: any) => apiClient.calculateCreditScore(creditData),
+  assessEligibility: (creditData: any) => apiClient.assessLoanEligibility(creditData),
+};
+
 export const alertService = {
   getAll: (filters?: AlertFilters, page?: number, limit?: number) =>
     apiClient.getAlerts(filters, page, limit),
@@ -424,4 +262,4 @@ export const settingsService = {
 export const monitoringService = {
   getSystemStatus: () => apiClient.getSystemMonitoring(),
   getRiskAssessment: () => apiClient.getRiskAssessment(),
-}; 
+};
