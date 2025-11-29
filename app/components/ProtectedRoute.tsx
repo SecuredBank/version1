@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from './LoadingSpinner';
 
-interface AuthWrapperProps {
+interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-export default function AuthWrapper({ children }: AuthWrapperProps) {
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
@@ -21,14 +21,14 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-surface-light">
         <LoadingSpinner />
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    return null; // Will redirect to signin
+    return null;
   }
 
   return <>{children}</>;

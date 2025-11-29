@@ -17,15 +17,18 @@ export default function SignIn() {
     setIsLoading(true);
     
     try {
-      // Simulate authentication for now
-      setTimeout(() => {
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', email);
-        router.push('/dashboard');
-        setIsLoading(false);
-      }, 1000);
-    } catch (error) {
+      // Import auth manager
+      const { login } = await import('@/lib/auth');
+      
+      // Call real API
+      const user = await login({ email, password });
+      
+      // Success - redirect to dashboard
+      router.push('/dashboard');
+    } catch (error: any) {
       console.error('Login failed:', error);
+      alert(error.message || 'Login failed. Please check your credentials.');
+    } finally {
       setIsLoading(false);
     }
   };

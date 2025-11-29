@@ -35,13 +35,26 @@ export default function SignUp() {
     
     setIsLoading(true);
     
-    // Simulate account creation
-    setTimeout(() => {
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', formData.email);
+    try {
+      // Import auth manager
+      const { register } = await import('@/lib/auth');
+      
+      // Call real API
+      const user = await register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+      });
+      
+      // Success - redirect to dashboard
       router.push('/dashboard');
+    } catch (error: any) {
+      console.error('Registration failed:', error);
+      alert(error.message || 'Registration failed. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
