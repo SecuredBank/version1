@@ -1,6 +1,9 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api',
+  // Main Backend Service (Node.js/Express) - Auth, KYC, Accounts, Transactions
+  MAIN_BACKEND_URL: process.env.NEXT_PUBLIC_MAIN_BACKEND_URL || 'http://localhost:5000/api/v1',
+  // AI Service (Python/FastAPI) - Fraud Detection, Credit Scoring
+  AI_SERVICE_URL: process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:8000/api',
   TIMEOUT: 30000, // 30 seconds
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000, // 1 second
@@ -8,7 +11,7 @@ export const API_CONFIG = {
 
 // API Endpoints
 export const API_ENDPOINTS = {
-  // Authentication
+  // Authentication (Main Backend)
   AUTH: {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
@@ -16,21 +19,33 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/refresh',
     PROFILE: '/auth/profile',
   },
-  
+
   // Dashboard
   DASHBOARD: {
     STATS: '/dashboard/stats',
     OVERVIEW: '/dashboard/overview',
   },
-  
-  // Transactions
+
+  // Transactions (Main Backend)
   TRANSACTIONS: {
     LIST: '/transactions',
     DETAILS: '/transactions/:id',
     REAL_TIME: '/transactions/real-time',
     EXPORT: '/transactions/export',
   },
-  
+
+  // Fraud Detection (AI Service)
+  FRAUD: {
+    ANALYZE: '/fraud/analyze',
+    RISK_PROFILE: '/fraud/risk-profile/:userId',
+  },
+
+  // Credit Scoring (AI Service)
+  CREDIT: {
+    SCORE: '/v1/credit/score',
+    ELIGIBILITY: '/v1/credit/eligibility',
+  },
+
   // Alerts
   ALERTS: {
     LIST: '/alerts',
@@ -38,7 +53,7 @@ export const API_ENDPOINTS = {
     UPDATE_STATUS: '/alerts/:id/status',
     DISMISS: '/alerts/:id/dismiss',
   },
-  
+
   // Reports
   REPORTS: {
     LIST: '/reports',
@@ -46,20 +61,20 @@ export const API_ENDPOINTS = {
     DOWNLOAD: '/reports/:id/download',
     DELETE: '/reports/:id',
   },
-  
+
   // Settings
   SETTINGS: {
     SECURITY: '/settings/security',
     UPDATE_SECURITY: '/settings/security',
   },
-  
+
   // Monitoring
   MONITORING: {
     SYSTEM_STATUS: '/monitoring/system',
     RISK_ASSESSMENT: '/monitoring/risk',
     LOCATION_ACTIVITY: '/monitoring/locations',
   },
-  
+
   // Analytics
   ANALYTICS: {
     PREVENTED_LOSSES: '/analytics/prevented-losses',
@@ -69,7 +84,7 @@ export const API_ENDPOINTS = {
 
 // WebSocket Configuration
 export const WS_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_WS_BASE_URL || 'ws://localhost:8000/ws',
+  BASE_URL: process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws',
   RECONNECT_INTERVAL: 5000, // 5 seconds
   MAX_RECONNECT_ATTEMPTS: 10,
 };
@@ -107,4 +122,4 @@ export const SUCCESS_MESSAGES = {
   SETTINGS_UPDATED: 'Settings updated successfully',
   REPORT_GENERATED: 'Report generated successfully',
   ALERT_DISMISSED: 'Alert dismissed successfully',
-}; 
+};
