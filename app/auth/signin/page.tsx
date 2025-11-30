@@ -17,11 +17,12 @@ export default function SignIn() {
     setIsLoading(true);
     
     try {
-      // Import auth manager
-      const { login } = await import('@/lib/auth');
+      // Import useAuth hook
+      const { useAuth } = await import('@/app/contexts/AuthContext');
+      const { login: contextLogin } = useAuth();
       
-      // Call real API
-      const user = await login({ email, password });
+      // Call login through context to update auth state
+      await contextLogin(email, password);
       
       // Success - redirect to dashboard
       router.push('/dashboard');
