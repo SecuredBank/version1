@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Shield, ArrowLeft, CheckCircle } from 'lucide-react';
+import { login } from '@/lib/auth';
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,12 +18,8 @@ export default function SignIn() {
     setIsLoading(true);
     
     try {
-      // Import useAuth hook
-      const { useAuth } = await import('@/app/contexts/AuthContext');
-      const { login: contextLogin } = useAuth();
-      
-      // Call login through context to update auth state
-      await contextLogin(email, password);
+      // Call login directly from auth module
+      await login({ email, password });
       
       // Success - redirect to dashboard
       router.push('/dashboard');
