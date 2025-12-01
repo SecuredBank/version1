@@ -36,11 +36,12 @@ export default function SignUp() {
     setIsLoading(true);
     
     try {
-      // Import auth manager
-      const { register } = await import('@/lib/auth');
+      // Import AuthContext
+      const { useAuth } = await import('@/app/contexts/AuthContext');
+      const { register } = useAuth();
       
       // Call real API
-      const user = await register({
+      await register({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -53,7 +54,7 @@ export default function SignUp() {
       console.error('Registration failed:', error);
       alert(error.message || 'Registration failed. Please try again.');
     } finally {
-      setIsLoading(false);
+     
     }
   };
 

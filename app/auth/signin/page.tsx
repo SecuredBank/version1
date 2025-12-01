@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Shield, ArrowLeft, CheckCircle } from 'lucide-react';
-import { login } from '@/lib/auth';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,14 +12,15 @@ export default function SignIn() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      // Call login directly from auth module
-      await login({ email, password });
+      // Call login from AuthContext to update state
+      await login(email, password);
       
       // Success - redirect to dashboard
       router.push('/dashboard');
